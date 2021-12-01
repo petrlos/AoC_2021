@@ -1,5 +1,4 @@
 # Advent of Code 2021: Day 1
-
 def countIncrease(depths):
     counter = 0
     for index in range(1, len(depths)):
