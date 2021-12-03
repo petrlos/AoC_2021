@@ -15,6 +15,12 @@ def numbersRemaining(numbers):
             counter += 1
     return counter
 
+def createNumbersDict(lines):
+    numbers = {}
+    for number in lines:
+        numbers.setdefault(number, True)
+    return numbers
+
 #MAIN:
 with open("data.txt") as file:
     lines = file.read().splitlines()
@@ -32,48 +38,40 @@ for column in columns:
         epsilonRate += "0"
 print("Task 1:", int(gamaRate, 2) * int(epsilonRate, 2))
 
-#Task2:
-numbers = {}
-for number in lines:
-    numbers.setdefault(number, True)
-
+#Task2 - ox gen rating:
+numbers = createNumbersDict(lines) #generate new dictionary of numbers
 position = 0
 while numbersRemaining(numbers) > 1:
-    subString = ""
-    for number in numbers.keys():
-        if numbers[number]:
+    subString = "" #get substring of lines at positions
+    for number, status in numbers.items(): #adds only active numbers - those with TRUE in dict
+        if status:
             subString += number[position]
     mostCommon = findMostCommonNumber(subString)
-    for number in numbers.keys():
-        if numbers[number]:
+    for number, status in numbers.items():
+        if status:
             if number[position] != mostCommon:
-                numbers[number] = False
-    #printRemaining(numbers)
+                numbers[number] = False #number with less count would be deleted
     position += 1
-
-for number in numbers.keys():
-    if numbers[number]:
+for number, status in numbers.items():
+    if status: #get the last standing number
         oxGenRating = int(number,2)
 
-numbers = {}
-for number in lines:
-    numbers.setdefault(number, True)
-
+#Task2 - CO2 scrubber rating
+numbers = createNumbersDict(lines) #generate new dictionary of numbers
 position = 0
 while numbersRemaining(numbers) > 1:
     subString = ""
-    for number in numbers.keys():
-        if numbers[number]:
+    for number, status in numbers.items():
+        if status:
             subString += number[position]
     mostCommon = findMostCommonNumber(subString)
-    for number in numbers.keys():
-        if numbers[number]:
+    for number, status in numbers.items():
+        if status:
             if number[position] == mostCommon:
                 numbers[number] = False
     position += 1
-
-for number in numbers.keys():
-    if numbers[number]:
+for number, status in numbers.items():
+    if status:
         CO2ScrubRating = int(number,2)
 
 print("Task 2:", oxGenRating*CO2ScrubRating)
