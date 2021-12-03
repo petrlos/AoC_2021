@@ -1,40 +1,38 @@
 #Advent of Code 2021: Day 3
 from collections import Counter
 
-def findMostCommonNumber(column, preference):
+def findMostCommonNumber(column):
     occurenceCount = Counter(column)
-    if occurenceCount["1"] > occurenceCount["0"]:
+    if occurenceCount["1"] >= occurenceCount["0"]:
         return "1"
-    elif occurenceCount["1"] == occurenceCount["0"]:
-        return "1"
-    elif occurenceCount["1"] < occurenceCount["0"]:
+    else:
         return "0"
 
 def numbersRemaining(numbers):
     counter = 0
-    for status in numbers.keys():
-        if numbers[status]:
+    for number, status in numbers.items():
+        if status:
             counter += 1
     return counter
 
+#MAIN:
 with open("data.txt") as file:
     lines = file.read().splitlines()
 
-columns = zip(*lines[::-1])
-
-#Task1
+#Task1:
+columns = zip(*lines[::-1]) #rotate by 90deg - easier to walk through
 gamaRate = ""
 epsilonRate = ""
 for column in columns:
-    newNumber = findMostCommonNumber(column, "")
+    newNumber = findMostCommonNumber(column)
     gamaRate += newNumber
     if newNumber == "0":
         epsilonRate += "1"
     else:
         epsilonRate += "0"
-
 print("Task 1:", int(gamaRate, 2) * int(epsilonRate, 2))
 
+#Task2:
 numbers = {}
 for number in lines:
     numbers.setdefault(number, True)
@@ -45,7 +43,7 @@ while numbersRemaining(numbers) > 1:
     for number in numbers.keys():
         if numbers[number]:
             subString += number[position]
-    mostCommon = findMostCommonNumber(subString, "1")
+    mostCommon = findMostCommonNumber(subString)
     for number in numbers.keys():
         if numbers[number]:
             if number[position] != mostCommon:
@@ -67,7 +65,7 @@ while numbersRemaining(numbers) > 1:
     for number in numbers.keys():
         if numbers[number]:
             subString += number[position]
-    mostCommon = findMostCommonNumber(subString, "0")
+    mostCommon = findMostCommonNumber(subString)
     for number in numbers.keys():
         if numbers[number]:
             if number[position] == mostCommon:
