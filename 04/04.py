@@ -72,7 +72,7 @@ for number in numbers:
             boardComplete = boardCompleted(board) #check if board completed
         if boardComplete:
             numbersSum = remainingNumbersSum(boards[boardIndex])
-            results.append(numbersSum*number)
+            results.append(numbersSum * number)
             boards[boardIndex] = None
     boards = list(filter(lambda x: x != None, boards))
 
