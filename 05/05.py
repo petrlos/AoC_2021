@@ -14,10 +14,11 @@ def getDirection(start, end):
             y = y // abs(y)
         else:
             x = x // abs(x)
-        direction = (x,y)
-        return direction
+        return (x,y)
     else:
-        return -1
+        x = x // abs(x)
+        y = y // abs(y)
+        return (x,y)
 
 def getStartEnd(line):
     numbers = [int(x) for x in regNum.findall(line)]
@@ -31,6 +32,7 @@ def addCoordToPipes(coord):
     else:
         pipes[coord] += 1
 
+#MAIN
 with open("data.txt") as file:
     lines = file.read().splitlines()
 
