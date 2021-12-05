@@ -5,7 +5,7 @@ regNum = re.compile(r"\d+")
 def tupleDiff(a,b):
     return tuple([x - y for x, y in zip(a,b)])
 
-def getDirection(start, end):
+def getDirection(start, end, task=1):
     longDirection = tupleDiff(end, start)
     x, y = longDirection
     if x == 0 or y == 0:
@@ -16,6 +16,8 @@ def getDirection(start, end):
             x = x // abs(x)
         return (x,y)
     else:
+        if task == 1:
+            return -1
         x = x // abs(x)
         y = y // abs(y)
         return (x,y)
@@ -32,22 +34,26 @@ def addCoordToPipes(coord):
     else:
         pipes[coord] += 1
 
+def generatePipes(lines, task):
+    for line in lines:
+        start, end = getStartEnd(line)
+        direction = getDirection(start, end, task)
+        if direction != -1:
+            addCoordToPipes(start)
+            while end != start:
+                addCoordToPipes(end)
+                end = tupleDiff(end, direction)
+    counter = 0
+    for coord, count in pipes.items():
+        if count > 1:
+            counter += 1
+    return counter
+
 #MAIN
 with open("data.txt") as file:
     lines = file.read().splitlines()
 
 pipes = {}
-for line in lines:
-    start, end = getStartEnd(line)
-    direction = getDirection(start, end)
-    if direction != -1:
-        addCoordToPipes(start)
-        while end != start:
-            addCoordToPipes(end)
-            end = tupleDiff(end, direction)
-
-counter = 0
-for coord, count in pipes.items():
-    if count > 1:
-        counter += 1
-print(counter)
+print("Task 1:", generatePipes(lines, 1))
+pipes = {}
+print("Task 2:", generatePipes(lines, 2))
