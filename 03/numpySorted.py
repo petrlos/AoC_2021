@@ -1,13 +1,13 @@
 import numpy
 from random import randint
 
-numpyArray = numpy.zeros((5,5), int)
+numpyArray = numpy.arange(35).reshape(7,5)
 
-for row in range(5):
-    for column in range(5):
-        numpyArray[(row, column)] = randint(0,2)
+print(numpyArray, "\n")
 
-print(numpyArray)
+count = 3
 
-sortedArray = numpyArray[numpyArray[:, 2].argsort()]
-print(sortedArray)
+print(numpyArray.shape)
+#sortedArray = numpyArray[numpyArray[:, 2].argsort()]
+#print(sortedArray)
+
