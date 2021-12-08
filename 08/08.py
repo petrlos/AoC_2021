@@ -10,10 +10,11 @@ def checkPossibleDecode(signal, decodeDictionary):
         for char in number:
             decodedNumber += decodeDictionary[char]
         decodedNumber = "".join(sorted(decodedNumber))
-        if decodedNumber not in possibleCombinations:
-            allTrue = False
-    return allTrue
+        if decodedNumber not in numberSegments:
+            return False
+    return True
 
+#MAIN
 with open("data.txt") as file:
     lines = file.read().splitlines()
 
@@ -32,22 +33,23 @@ for output in outputs:
     for number in numbers:
         if len(number) in oneFourSevenEight:
             counter += 1
-print("Task 1: ",counter)
+print("Task 1:",counter)
 
 #Task 2:
-possibleCombinations = ["abcefg", "cf", "acdeg", "acdfg", "bcdf",
+#with these segments lit up the LIST INDEX number is displayed
+numberSegments = ["abcefg", "cf", "acdeg", "acdfg", "bcdf",
                         "abdfg", "abdefg", "acf", "abcdefg", "abcdfg"] #0123456789
 
-allSettings = list(permutations("abcdefg"))
-decodeString = "abcdefg"
+allSettings = list(permutations("abcdefg")) #BRUTE FORCE wtf! :)
+decodeString = "abcdefg" #basic combination - needed to decode
 decodedNumbers = []
 for pair in zip(signals, outputs):
     decodeDictionary = {}
     signal, output = pair
-    signal = ["".join(sorted(x)) for x in signal.split(" ")]
+    signal = ["".join(sorted(x)) for x in signal.split(" ")] #all segments must be sorted, easier to compare
     output = ["".join(sorted(x)) for x in output.split(" ")]
     for setting in allSettings:
-        for index, char in enumerate(setting):
+        for index, char in enumerate(setting): #decode setting, save to dictionary
             key = decodeString[index]
             decodeDictionary[char] = key
         if checkPossibleDecode(signal, decodeDictionary):
@@ -57,9 +59,8 @@ for pair in zip(signals, outputs):
                 for char in outPutNumber:
                     resultCoded += decodeDictionary[char]
                 resultCoded = "".join(sorted(resultCoded))
-                resultNumber += str(possibleCombinations.index(resultCoded))
+                resultNumber += str(numberSegments.index(resultCoded))
             decodedNumbers.append(int(resultNumber))
 
-print(decodedNumbers)
-print(sum(decodedNumbers))
+print("Task 2:",sum(decodedNumbers))
 print(datetime.now() - start)
