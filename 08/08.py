@@ -4,7 +4,6 @@ from datetime import datetime
 start = datetime.now()
 
 def checkPossibleDecode(signal, decodeDictionary):
-    allTrue = True
     for number in signal:
         decodedNumber = ""
         for char in number:
@@ -61,6 +60,8 @@ for pair in zip(signals, outputs):
                 resultCoded = "".join(sorted(resultCoded))
                 resultNumber += str(numberSegments.index(resultCoded))
             decodedNumbers.append(int(resultNumber))
+            break # no need to check other settings
 
 print("Task 2:",sum(decodedNumbers))
+print(" ")
 print(datetime.now() - start)
