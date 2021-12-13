@@ -1,6 +1,7 @@
 #Advent of Code 2021: Day 12
-from collections import deque
-from collections import Counter
+from collections import deque, Counter
+from datetime import datetime
+start = datetime.now()
 
 def findNextCave(location):
     destinations = deque()
@@ -66,25 +67,22 @@ def task2(start):
         for _ in range(len(queue)):
             path = queue[0]
             newCaves = findNextCave(path[-1])
-            newPaths = []
             for newCave in newCaves:
                 newPath = path + [newCave]
-                newPaths.append(newPath)
-            queue += newPaths
+                if smallCaveTask2Checker(newPath):
+                    if pathCompleted(newPath):
+                        completedLegalPaths += 1
+                    else:
+                        queue.append(newPath)
             queue.popleft()
-        for index, path in enumerate(queue):
-            if not smallCaveTask2Checker(path):
-                queue[index] = "delete"
-            if pathCompleted(queue[index]):
-                completedLegalPaths += 1
-                queue[index] = "delete"
-        queue = deque(list(filter(lambda x: x != "delete", queue)))
-        print(len(queue))
+        print("Paths in queue remaining:", len(queue))
     return completedLegalPaths
 
 #MAIN
-with open("test3.txt") as file:
+with open("data.txt") as file:
     lines = [x.split("-") for x in file.read().splitlines()]
 
 print("Task 1:",task1("start"))
+print("Runtime only Task1", datetime.now() - start)
 print("Task 2:",task2("start"))
+print("Runtime Task1 + Task2", datetime.now() - start)
