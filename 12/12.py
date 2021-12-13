@@ -4,7 +4,7 @@ from datetime import datetime
 start = datetime.now()
 
 def findNextCave(location):
-    destinations = deque()
+    destinations = []
     for line in lines:
         if location in line:
             if location == line[0]:
@@ -32,32 +32,27 @@ def smallCaveTask2Checker(path):
     smallCaves = list(filter(lambda x: x.islower(), path[1:-1])) #only small caves, not start+end
     smallCavesCounter = list(Counter(smallCaves).values())
     if len(smallCavesCounter):
-        if max(smallCavesCounter) > 2:
+        if max(smallCavesCounter) > 2: #max visit for single small cave is 2
             return False
-        if smallCavesCounter.count(2) > 1:
+        if smallCavesCounter.count(2) > 1: #there may be two small caves with 2 visits
             return False
     return True
 
 def task1(start):
-    queue = [[start]]
+    queue = deque([[start]])
     completedLegalPaths = []
     while queue:
         for _ in range(len(queue)):
             path = queue[0]
             newCaves = findNextCave(path[-1])
-            newPaths = []
             for newCave in newCaves:
                 newPath = path + [newCave]
-                newPaths.append(newPath)
-            queue += newPaths
-            queue.pop(0)
-        for index, path in enumerate(queue):
-            if pathCompleted(path):
-                completedLegalPaths.append(path)
-                queue[index] = "delete"
-            if not smallCaveVisitedMaxOnce(path):
-                queue[index] = "delete"
-        queue = list(filter(lambda x: x != "delete", queue))
+                if smallCaveVisitedMaxOnce(newPath):
+                    if pathCompleted(newPath):
+                        completedLegalPaths.append(newPath)
+                    else:
+                        queue.append(newPath)
+            queue.popleft()
     return len(completedLegalPaths)
 
 def task2(start):
