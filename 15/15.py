@@ -23,17 +23,34 @@ def generateNeighboursDistance(coord):
                 distances[newNeighbour] = grid[newNeighbour] + distances[coord]
                 queue.append(newNeighbour)
 
+#needed for Task2:
+def extendedGrid(grid, maxX, maxY):
+    newGrid = {}
+    for x in range(maxX+1):
+        for y in range(maxY+1):
+            for i in range(5):
+                newGrid[(x,y + (i*(maxY+1)))] = grid[(x,y)]+i
+
+    for y in range(maxX * 5):
+        for x in range(maxY * 5):
+            print(grid[(x, y)], end="")
+        print(" ")
+
+    return newGrid
+
 #MAIN
-with open("data.txt") as file:
+with open("test2.txt") as file:
     lines = file.read().splitlines()
 
-grid, distances = {}, {}
+grid = {}
 start = (0,0)
 
 for x, line in enumerate(lines):
     for y, char in enumerate(line):
         grid[(x,y)] = int(char)
 sizeX, sizeY = x,y
+
+extendedGrid(grid, sizeX, sizeY)
 
 distances = numpy.zeros((sizeX+1,sizeY+1))-1
 distances[start] = grid[start]#startdistance
@@ -43,7 +60,9 @@ while queue:
     currentStep = findNextStep(queue)
     generateNeighboursDistance(currentStep)
     queue.remove(currentStep)
+    if distances[(sizeX, sizeY)] > 0:
+        queue = []
 
 result = distances[sizeX, sizeY] - distances[0,0]
-print(result)
+print("Result:",result)
 print(datetime.now() - timerStart)
