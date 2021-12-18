@@ -25,8 +25,23 @@ def generateNeighboursDistance(coord):
 
 #needed for Task2:
 def extendedGrid(grid, maxX, maxY):
-    ...
-#TODO: extended grid not working
+    newGrid = {}
+    #copy to right
+    for x in range(maxX):
+        for y in range(maxY):
+            for i in range(5):
+                newGrid[(x+(i*maxX), y)] = grid[x,y] + i
+    #copy down
+    for y in range(maxY):
+        for x in range(maxY*5):
+            for i in range(0,5):
+                newGrid[(x, y+(maxY*i))] = i + newGrid[(x,y)]
+    #correct > 9
+    for coord in newGrid.keys():
+        while newGrid[coord] > 9:
+            newGrid[coord] -= 9
+
+    return newGrid
 
 #MAIN
 with open("data.txt") as file:
@@ -35,12 +50,14 @@ with open("data.txt") as file:
 grid = {}
 start = (0,0)
 
-for x, line in enumerate(lines):
-    for y, char in enumerate(line):
+for y, line in enumerate(lines):
+    for x, char in enumerate(line):
         grid[(x,y)] = int(char)
 sizeX, sizeY = x,y
 
-#extendedGrid(grid, sizeX, sizeY)
+grid = extendedGrid(grid, sizeX+1, sizeY+1)
+sizeX = (sizeX+1) *5
+sizeY = (sizeY+1) *5
 
 distances = numpy.zeros((sizeX+1,sizeY+1))-1
 distances[start] = grid[start]#startdistance
@@ -48,13 +65,17 @@ distances[start] = grid[start]#startdistance
 queue = set()
 queue.add(start)
 
+counter = 0
 while queue:
+    counter += 1 #how many coords have been checked
+    if counter % 1000 == 0:
+        print(counter, len(queue), datetime.now()-timerStart)
     currentStep = findNextStep(queue)
     generateNeighboursDistance(currentStep)
     queue.remove(currentStep)
-    if distances[(sizeX, sizeY)] > 0:
+    if distances[(sizeX-1, sizeY-1)] > 0:
         queue = []
 
-result = distances[sizeX, sizeY] - distances[0,0]
+result = distances[sizeX-1, sizeY-1] - distances[0,0]
 print("Result:",result)
 print(datetime.now() - timerStart)
