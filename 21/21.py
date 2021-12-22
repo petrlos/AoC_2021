@@ -8,7 +8,7 @@ def roll(player, cube):
     return player
 
 #MAIN
-player1 = [4, 0] #position, score
+player1 = [2, 0] #position, score
 player2 = [8, 0]
 
 cube = 1
