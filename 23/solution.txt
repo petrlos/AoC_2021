@@ -1,0 +1,7 @@
+#Advent of Code 2021: Day 23
+
+solved using: https://amphipod.net
+
+move Ds first to right place, took about 5 min to solve
+
+correct answer: 15237
