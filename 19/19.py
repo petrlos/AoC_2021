@@ -1,5 +1,7 @@
 #Advent of Code 2021: Day 19
 from datetime import datetime
+from itertools import combinations
+start = datetime.now()
 
 def parseData(lines):
     scanner, scanners = [], []
@@ -46,22 +48,38 @@ def correctByVektor(vektor, scanner):
 def intersection(lst1, lst2):
     return [value for value in lst1 if value in lst2]
 
+def findIntersectionOfTwoScanners(referenceScanner, scannerToRotate):
+    for rotation in range(24):
+        rotatedScanner = rotateCompleteScanner(scannerToRotate, rotation)
+        for referenceBeacon in referenceScanner:
+            for beacon in rotatedScanner:
+                vektor = [x - y for x,y in zip(referenceBeacon, beacon)] #vektor to reference beacon
+                correctedScanner = correctByVektor(vektor, rotatedScanner) #correct all beacons according to vector
+                intersect = intersection(referenceScanner, correctedScanner) #find matching beacons
+                if len(intersect) == 12:
+                    print(sorted(intersect))
+                    return 0
+
 #MAIN:
 with open("test.txt") as file:
     lines = file.read().splitlines()
 
 scanners = parseData(lines)
+print(len(scanners))
 
-match = False
-referenceBeacon = scanners[0][0]  # reference
-for scannerIndex in range(1, len(scanners)):
-    for rotation in range(24):
-        rotatedScanner = rotateCompleteScanner(scanners[scannerIndex], rotation)
-        for beacon in rotatedScanner:
-            vektor = [x - y for x,y in zip(referenceBeacon, beacon)] #vektor to reference beacon
-            correctedScanner = correctByVektor(vektor, rotatedScanner) #correct all beacons according to vector
-            intersect = intersection(scanners[0], correctedScanner) #find matching beacons
-            if len(intersect) > 1:
-                scanners[0] = scanners[0] + [x for x in correctedScanner if x not in scanners[0]]
-                print(vektor)
-                print(scannerIndex, len(intersect), rotation, sorted(intersect))
+comb = combinations(range(len(scanners)),2)
+visited = set()
+
+#search all pairs for match of at least 12
+for c in comb:
+    first, second = c
+    if findIntersectionOfTwoScanners(scanners[first], scanners[second]) == 0:
+        #match found - add scanner ID to visited
+        visited.add(first)
+        visited.add(second)
+
+# visited = paired scanners
+print(len(visited))
+print(sorted(list(visited)))
+
+print(datetime.now() - start)
