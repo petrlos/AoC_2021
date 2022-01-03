@@ -1,5 +1,5 @@
 #Advent of Code 2021: Day 19
-from pprint import pprint
+from datetime import datetime
 
 def parseData(lines):
     scanner, scanners = [], []
@@ -30,20 +30,38 @@ def rotateCompleteScanner(beacons, rotation):
     #finds new coords for all beacons from scanner in ONE of 24 rotations
     rotatedScanner = []
     direction, YAxe = (rotation //4), (rotation % 4)
-    print(direction, YAxe)
     for beacon in beacons:
         beaconDirectionRotated = rotateToOtherDirection(beacon, direction)
         beaconYrotated = rotateByY(beaconDirectionRotated, YAxe)
         rotatedScanner.append(beaconYrotated)
     return rotatedScanner
 
+def correctByVektor(vektor, scanner):
+    correctedScanner = []
+    for beacon in scanner:
+        correctedBeacon = [x + y for x,y in zip(vektor,beacon)]
+        correctedScanner.append(correctedBeacon)
+    return correctedScanner
+
+def intersection(lst1, lst2):
+    return [value for value in lst1 if value in lst2]
+
 #MAIN:
-with open("test2.txt") as file:
+with open("test.txt") as file:
     lines = file.read().splitlines()
 
 scanners = parseData(lines)
 
-
-for scanner in scanners:
+match = False
+referenceBeacon = scanners[0][0]  # reference
+for scannerIndex in range(1, len(scanners)):
     for rotation in range(24):
-        rotatedScanner = rotateCompleteScanner(scanner, rotation)
+        rotatedScanner = rotateCompleteScanner(scanners[scannerIndex], rotation)
+        for beacon in rotatedScanner:
+            vektor = [x - y for x,y in zip(referenceBeacon, beacon)] #vektor to reference beacon
+            correctedScanner = correctByVektor(vektor, rotatedScanner) #correct all beacons according to vector
+            intersect = intersection(scanners[0], correctedScanner) #find matching beacons
+            if len(intersect) > 1:
+                scanners[0] = scanners[0] + [x for x in correctedScanner if x not in scanners[0]]
+                print(vektor)
+                print(scannerIndex, len(intersect), rotation, sorted(intersect))
