@@ -56,30 +56,38 @@ def findIntersectionOfTwoScanners(referenceScanner, scannerToRotate):
                 vektor = [x - y for x,y in zip(referenceBeacon, beacon)] #vektor to reference beacon
                 correctedScanner = correctByVektor(vektor, rotatedScanner) #correct all beacons according to vector
                 intersect = intersection(referenceScanner, correctedScanner) #find matching beacons
-                if len(intersect) == 12:
-                    print(sorted(intersect))
-                    return 0
+                if len(intersect) >= 12:
+                    return correctedScanner
+    return []
+
+def findOverlapingBeacons(scanners):
+    print("Scanners total:", len(scanners))
+    visited = {0}
+    results = []
+    for beacon in scanners[0]:
+        results.append(beacon)
+    while len(visited) != len(scanners):
+        print("and again from beginning.. :)")
+        for i in range(1, len(scanners)):
+            if i not in visited:
+                possibleIntersection = findIntersectionOfTwoScanners(results, scanners[i])
+                if len(possibleIntersection) > 0:
+                    visited.add(i)
+                    print("Scanners to add remaining:", len(scanners) - len(visited))
+                    for beacon in possibleIntersection:
+                        if beacon not in results:
+                            results.append(beacon)
+    return results
 
 #MAIN:
 with open("test.txt") as file:
     lines = file.read().splitlines()
 
 scanners = parseData(lines)
-print(len(scanners))
-
-comb = combinations(range(len(scanners)),2)
-visited = set()
-
-#search all pairs for match of at least 12
-for c in comb:
-    first, second = c
-    if findIntersectionOfTwoScanners(scanners[first], scanners[second]) == 0:
-        #match found - add scanner ID to visited
-        visited.add(first)
-        visited.add(second)
+results = findOverlapingBeacons(scanners)
 
 # visited = paired scanners
-print(len(visited))
-print(sorted(list(visited)))
+print("Total beacon count:",len(results))
+
 
 print(datetime.now() - start)
