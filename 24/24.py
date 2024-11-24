@@ -1,30 +1,38 @@
 #Advent of Code 2021: Day 24
 from icecream import ic
+class Node:
+    def __int__(self, final_z, input_z, w):
+        self.w = w
+        self.final_z = final_z
+        self.input_z = input_z
+        self.parent = None
 
-def perform_block(w, commands):
-    operations = {
-        "add": lambda a, b, registers: registers.update({a: registers[a] + b}),
-        "mul": lambda a, b, registers: registers.update({a: registers[a] * b}),
-        "div": lambda a, b, registers: registers.update({a: registers[a] // b}),
-        "mod": lambda a, b, registers: registers.update({a: registers[a] % b}),
-        "eql": lambda a, b, registers: registers.update({a: 1 if registers[a] == b else 0})
-    }
-    registers["w"] = w #first input line
-    for command in commands.splitlines():
-        inst, first, second = command.split(" ")
-        if second.isalpha():
-            second = registers[second]
-        else:
-            second = int(second)
-        operations[inst](first, second, registers)
+def parse_block(single_block):
+    block = dict()
+    block["z_div"] = int(single_block[3].split(" ")[-1])
+    block["x_check"] = int(single_block[4].split(" ")[-1])
+    block["y_add"] = int(single_block[14].split(" ")[-1])
+    return block
+
+def perform_single_block(w, z, block):
+    x = z % 26
+    z //= block["z_div"]
+    if x != w - block["x_check"]:
+        z = 26 * z + w + block["y_add"]
+    return z
 
 #MAIN
 with open("data.txt") as file:
     lines = file.read().split("inp w\n")
 
-for z in range(-1000,100000):
-    for w in range(1, 10):
-        registers = {'x': 0, 'y': 0, 'z': z }
-        perform_block(w, lines[-1])
-        if registers["z"] == 0:
-            print(w, z, registers)
+blocks = []
+for line in lines[1:]: #first instruction is "inp w" - split creates an empty block of instructions
+    block = parse_block(line.splitlines())
+    blocks.append(block)
+
+number = "41171183141291"
+z = 0
+for w, block in zip(number, blocks):
+    z = perform_single_block(int(w), z, block)
+
+print(z)
