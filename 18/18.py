@@ -1,5 +1,6 @@
 #Advent of Code 2021: Day 18
 import json
+import re
 
 def count_magnitude(number):
     result = 0
@@ -18,17 +19,20 @@ def add_snailfish_numbers(num1, num2):
     return [num1, num2]
 
 def explode(number):
-    if number == [[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]:
-        return [[[[0,7],4],[7,[[8,4],9]]],[1,1]]
-    if number == [[[[0,7],4],[7,[[8,4],9]]],[1,1]]:
-        return [[[[0,7],4],[15,[0,13]]],[1,1]]
+
 
     return -1
 
-def split(number):
-    if number == [[[[0,7],4],[15,[0,13]]],[1,1]]:
-        return [[[[0,7],4],[[7,8],[0,13]]],[1,1]]
-    return -1
+def split(sfn):
+    sfn = str(sfn)
+    numbers = list(map(int,(re.findall(r"\d+",sfn))))
+    for num in numbers:
+        if num >= 10:
+            left, right = num//2, num//2 + num%2
+
+            sfn = sfn.replace(str(num), f"[{left},{right}]", 1)
+            break
+    return json.loads(sfn)
 
 #MAIN
 with open("test.txt") as file:
@@ -46,7 +50,7 @@ for number in numbers[1:]:
             result = exploded
         else: #not exploded - try split
             splitted = split(result)
-            if splitted != -1: #if splitted
+            if splitted != result: #if splitted
                 result = splitted
             else:
                 reduced = True #not exploded and not splitted - number reduced

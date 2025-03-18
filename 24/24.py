@@ -55,4 +55,7 @@ for id, line in enumerate(lines[1:]): #first instruction is "inp w" - split crea
     blocks.append(block)
     ic(id, block)
 
+#ic(check_complete_number("41171183141291"))
+#ic(check_complete_number("91398299697996"))
+
 #TODO: dont know ho to construct the tree backwards
