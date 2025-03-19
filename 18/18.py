@@ -1,9 +1,10 @@
 #Advent of Code 2021: Day 18
 import json
 import re
-from icecream import ic
 from itertools import combinations
+from datetime import datetime
 
+time_start = datetime.now()
 def count_magnitude(number):
     result = 0
     left, right = number
@@ -60,29 +61,37 @@ def explode(number, flattened_numb):
             break #as soon as depth >= 4 is found
     return number
 
-def sum_up_all_numbers(numbers):
-    result = numbers[0]
-    for number in numbers[1:]:
-        result = add_snailfish_numbers(result, number)  # add new number to existing one
-        reduced = False
-        while not reduced:
-            flattened = flatten(result, 0, [])
-            max_depht = max([depht[1] for depht in flattened])
-            if max_depht >=4:
-                result = explode(result, flattened)
-            else:  # not exploded - try split
-                splitted = split(result)
-                if splitted != result:  # if splitted
-                    result = splitted
-                else:
-                    reduced = True  # not exploded and not splitted - number reduced
+def sum_up_two_numbers(num1, num2):
+    result = add_snailfish_numbers(num1, num2)  # add new number to existing one
+    reduced = False
+    while not reduced:
+        flattened = flatten(result, 0, [])
+        max_depht = max([depht[1] for depht in flattened])
+        if max_depht >=4:
+            result = explode(result, flattened)
+        else:  # not exploded - try split
+            splitted = split(result)
+            if splitted != result:  # if splitted
+                result = splitted
+            else:
+                reduced = True  # not exploded and not splitted - number reduced
     return result
 
 #MAIN
 with open("data.txt") as file:
     lines = file.read().splitlines()
 
-numbers = [json.loads(json_string) for json_string in lines]
-
-sum_up = sum_up_all_numbers(numbers)
+sum_up = json.loads(lines[0])
+for num in lines[1:]:
+    sum_up = sum_up_two_numbers(sum_up, json.loads(num))
 print("Part 1:", count_magnitude(sum_up))
+print("Time:", datetime.now() - time_start)
+
+max_magnitudes = []
+pairs = combinations(lines, 2)
+for pair_str in pairs:
+    left, right = pair_str
+    max_magnitudes.append(count_magnitude(sum_up_two_numbers(json.loads(left), json.loads(right))))
+    max_magnitudes.append(count_magnitude(sum_up_two_numbers(json.loads(right), json.loads(left))))
+print("Part 2:", max(max_magnitudes))
+print("Time:", datetime.now() - time_start)
