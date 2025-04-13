@@ -1,48 +1,92 @@
 #Advent of Code 2021: Day 16
+class Node:
+    def __init__(self, version, type, pointer, value=0):
+        self.version = version
+        self.type = type
+        self.packet_start = pointer
+        self.value = value #result of operations of children
+        self.children = None if type == 4 else [] #literal value has no children
+        self.subpackets = None
+        self.length = None
+        self.subpacket_end = None
 
-#TODO: not working at all, dont know how yet
+    def __repr__(self):
+        return f"Vs:{self.version}, Tp:{self.type}, Val:{self.value}, Children: {self.children}"
 
-def decodeLiteralValue(binaryData):
-    decoded = ""
-    for index in range(0,len(binaryData), 5):
-        decoded += binaryData[index + 1:index + 5]
-        if binaryData[index] == "0":
+    def add_child(self, packet):
+        self.children.append(packet)
+
+def convert_hex_to_bin(hex_num):
+    return "".join(bin(int(c, 16))[2:].zfill(4) for c in hex_num)
+
+def decode_literal_value(pointer):
+    value_bits = ""
+    while True:
+        group = bin_number[pointer:pointer+5]
+        value_bits += group[1:]
+        pointer += 5
+        if group[0] == "0":
             break
-    return int(decoded, 2)
+    return int(value_bits, 2), pointer
 
-def decodeOperatorPacket(binaryData):
-    subPacketLength = 0
-    subPacketCount = 0
-    if binaryData[0] == "0":
-        subPacketLength = int(binaryData[1:16], 2)
+def add_to_stack(pointer):
+    vs = int(bin_number[pointer:pointer+3], 2)
+    type = int(bin_number[pointer+3:pointer+6], 2)
+    node = Node(vs, type, pointer)
+    pointer += 6 #move past version and type
+    if type == 4:
+        node.value, pointer = decode_literal_value(pointer)
     else:
-        subPacketCount = int(binaryData[1:12], 2)
+        if bin_number[pointer] == "0": #next 15 bits define how long is subpacket
+            node.length = int(bin_number[pointer+1:pointer+16], 2)
+            pointer += 16
+            node.subpacket_end = pointer + node.length
+        else: #next 11 bits define how many subpackets in this subpacket
+            node.subpackets = int(bin_number[pointer+1:pointer+12])
+            pointer += 12
+    return pointer, node
 
-    print(subPacketLength, subPacketCount)
+def generate_tree(bin_number):
+    tree = []
+    stack = []
 
-def encodePacket(binaryData):
-    packetType = int(binaryData[0:3], 2)
-    packetID = int(binaryData[3:6], 2)
-    if packetID == 4:
-        value = decodeLiteralValue(binaryData[6:])
-        print(value)
-    else:
-        value = decodeOperatorPacket(binaryData[6:])
+    versions = 0
+    pointer = 0
+    while pointer + 7 < len(bin_number):
+        if len(stack) == 0:
+            pointer, added = add_to_stack(pointer)
+            tree.append(added)
+            stack.append(added)
+            versions += added.version
+        else:
+            current = stack[-1]
+            if current.length is not None:
+                if pointer >= current.subpacket_end:
+                    consumed = pointer - current.packet_start
+                    if consumed >= current.length + 6:
+                        stack.pop()
+                        if stack:
+                            stack[-1].add_child(current)
+                        continue
 
+            if current.subpackets is not None:
+                if len(current.children) >= current.subpackets:
+                    stack.pop()
+                    if stack:
+                        stack[-1].add_child(current)
+                    continue
+            pointer, added = add_to_stack(pointer)
+            current.add_child(added)
+            versions += added.version
+    return tree, versions
 
 #MAIN
-#generate hex -> bin dictionary
-with open("bindict.txt") as file:
-    lines = file.read().splitlines()
-    binDict = {}
-    for line in lines:
-        key, value = line.split(" = ")
-        binDict[key] = value
 
-hexString = "EE00D40C823060"
+with open("test_2.txt") as file:
+    hex_numbers = file.read().splitlines()
 
-binaryData = ""
-for char in hexString:
-    binaryData += binDict[char]
+bin_number = convert_hex_to_bin(hex_numbers[0])
+print(hex(int(bin_number, 2))[2:], "\n", bin_number)
 
-encodePacket(binaryData)
+tree, versions_sum = generate_tree(bin_number)
+print("Part 1:", versions_sum)
